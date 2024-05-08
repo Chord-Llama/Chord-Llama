@@ -1,0 +1,29 @@
+version: "3.9"
+services:
+  # Flask Backend
+  api:
+    build:
+      dockerfile: Dockerfile
+      context: ./backend
+
+    ports:
+      - 5000:5000
+    env_file: .env
+
+    volumes:
+      - ./backend:/app
+
+    command: flask run
+
+  # React Frontend
+  client:
+    build:
+      dockerfile: Dockerfile
+      context: ./frontend
+    command: npm run start
+    volumes:
+      - ./frontend:/usr/frontend/src/app
+    ports:
+      - 3000:3000
+    links:
+      - api
