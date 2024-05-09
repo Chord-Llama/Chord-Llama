@@ -10,9 +10,6 @@ import file_reverter
 
 app = Flask(__name__)
 
-
-
-
 @app.route('/ollama-request', methods=['POST'])
 def ollama_request():
     files = request.files
@@ -21,18 +18,22 @@ def ollama_request():
 
     with tempfile.NamedTemporaryFile(mode='w+t', delete=False) as original_music_xml_file:
 
-        if music_file.filename.endswith('.mxl'):
-            with zipfile.ZipFile(music_file, "r") as zip_ref:
-                zip_ref.extractall(original_music_xml_file)
-        else:
-            original_music_xml_file = music_file
+        # if music_file.filename.endswith('.mxl'):
+        #     with zipfile.ZipFile(music_file, "r") as zip_ref:
+        #         zip_ref.extractall(original_music_xml_file)
+        # else:
+        #     original_music_xml_file = music_file
 
-        part_list, system_message, prompt = file_cleaner.music_xml_to_inputs(original_music_xml_file)
+        # part_list, system_message, prompt = file_cleaner.music_xml_to_inputs(original_music_xml_file)
 
-        # print(prompt)
+        with open('system.yaml', 'r') as file:
+            system_message = file.read()
+
+        with open('prompt.yaml', 'r') as file:
+            prompt = file.read()
 
         data = json.dumps({
-            "model": "jaspann/llama-3-chord-llama-2:latest",
+            "model": "chord-full:latest",
             "system": system_message,
             "prompt": prompt
         })
@@ -44,20 +45,30 @@ def ollama_request():
 
         s = requests.Session()
         r = s.post("http://localhost:11434/api/generate", data=data, stream=True)
-        for stream_object in r.iter_lines():
+        for index, stream_object in enumerate(r.iter_lines()):
             if stream_object:
-                print(stream_object)
-                response_str = stream_object['response'].decode('utf-8')
+                response_string = stream_object.decode('utf-8')
+                response_json = json.loads(response_string)
+                response_str = response_json['response']
                 model_response += response_str
 
-        final_tree = file_reverter.revert_file(part_list, system_message, model_response)
+                print(response_json)
 
-        with tempfile.NamedTemporaryFile() as temp_file:
-            final_tree.write(temp_file, encoding='utf-8', xml_declaration=True)
-            file_reverter.prettify_xml(temp_file)
-            file_reverter.add_docstring(temp_file, original_music_xml_file)
+                if index > 1000:
+                    break
 
-            return send_file(temp_file, as_attachment=True)
+        print(model_response)
+
+        # final_tree = file_reverter.revert_file(part_list, system_message, model_response)
+
+        # with tempfile.NamedTemporaryFile() as temp_file:
+        #     final_tree.write(temp_file, encoding='utf-8', xml_declaration=True)
+        #     file_reverter.prettify_xml(temp_file)
+        #     file_reverter.add_docstring(temp_file, original_music_xml_file)
+
+        #     return send_file(temp_file, as_attachment=True)
+
+        return model_response
 
 if __name__ == '__main__':
     app.run(debug=True)

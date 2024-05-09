@@ -1,0 +1,147 @@
+- a00_harmony:
+    root:
+      root-step: E
+    kind:
+      '@text': m
+      '#text': minor
+  a01_note:
+    pitch:
+      step: B
+      octave: '4'
+    duration: '2'
+    type: quarter
+  a02_note:
+    pitch:
+      step: B
+      octave: '4'
+    duration: '4'
+    type: half
+  a03_note:
+    pitch:
+      step: G
+      octave: '4'
+    duration: '2'
+    type: quarter
+- a00_harmony:
+    root:
+      root-step: A
+    kind:
+      '@text': '7'
+      '#text': dominant
+  a01_note:
+    pitch:
+      step: A
+      octave: '4'
+    duration: '2'
+    type: quarter
+  a02_note:
+    pitch:
+      step: A
+      octave: '4'
+    duration: '2'
+    type: quarter
+  a03_harmony:
+    root:
+      root-step: B
+    kind:
+      '@text': ''
+      '#text': major
+  a04_note:
+    pitch:
+      step: F
+      alter: '1'
+      octave: '4'
+    duration: '2'
+    type: quarter
+  a05_note:
+    rest: null
+    duration: '2'
+    type: quarter
+- a00_harmony:
+    root:
+      root-step: E
+    kind:
+      '@text': m
+      '#text': minor
+  a01_note:
+    rest: null
+    duration: '1'
+    type: eighth
+  a02_note:
+    pitch:
+      step: B
+      octave: '4'
+    duration: '1'
+    type: eighth
+  a03_note:
+    pitch:
+      step: B
+      octave: '4'
+    duration: '1'
+    type: eighth
+  a04_note:
+    pitch:
+      step: B
+      octave: '4'
+    duration: '1'
+    type: eighth
+  a05_note:
+    pitch:
+      step: B
+      octave: '4'
+    duration: '1'
+    type: eighth
+  a06_note:
+    pitch:
+      step: B
+      octave: '4'
+    duration: '1'
+    type: eighth
+  a07_note:
+    pitch:
+      step: B
+      octave: '4'
+    duration: '1'
+    type: eighth
+  a08_note:
+    pitch:
+      step: B
+      octave: '4'
+    duration: '1'
+    type: eighth
+- a00_harmony:
+    root:
+      root-step: A
+    kind:
+      '@text': '7'
+      '#text': dominant
+  a01_note:
+    pitch:
+      step: A
+      octave: '4'
+    duration: '2'
+    type: quarter
+  a02_note:
+    pitch:
+      step: E
+      octave: '4'
+    duration: '1'
+    type: eighth
+  a03_note:
+    pitch:
+      step: G
+      octave: '4'
+    duration: '1'
+    tie:
+      '@type': start
+    type: eighth
+  a04_note:
+    pitch:
+      step: G
+      octave: '4'
+    duration: '2'
+    tie:
+      '@type': stop
+    type: quarter
+  a05_note:
+    rest: null
