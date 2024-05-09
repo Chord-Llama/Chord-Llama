@@ -3,6 +3,7 @@ import json
 import requests
 from xml.etree.ElementTree import Element, ElementTree
 import tempfile
+import zipfile
 
 import file_cleaner
 import file_reverter
@@ -18,35 +19,45 @@ def ollama_request():
 
     music_file = files['music_file']
 
-    if music_file.filename.endswith('.mxl'):
-        raw_file_contents: str = file_cleaner.unzip_file(music_file)
-    else:
-        raw_file_contents: str = music_file.read()
+    with tempfile.NamedTemporaryFile(mode='w+t', delete=False) as original_music_xml_file:
 
-    part_list, system_message, prompt = file_cleaner.music_xml_to_inputs(raw_file_contents)
+        if music_file.filename.endswith('.mxl'):
+            with zipfile.ZipFile(music_file, "r") as zip_ref:
+                zip_ref.extractall(original_music_xml_file)
+        else:
+            original_music_xml_file = music_file
 
-    data = json.dumps({
-        "model": "llama-3-chord-llama-1:latest",
-        "system": system_message,
-        "prompt": prompt
-    })
+        part_list, system_message, prompt = file_cleaner.music_xml_to_inputs(original_music_xml_file)
 
-    model_response = "" 
+        # print(prompt)
 
-    s = requests.Session()
-    r = s.post("http://localhost:11434/api/generate", data=data, stream=True)
-    for stream_object in r.iter_lines():
-        if stream_object:
-            model_response += stream_object['response']
+        data = json.dumps({
+            "model": "jaspann/llama-3-chord-llama-2:latest",
+            "system": system_message,
+            "prompt": prompt
+        })
 
-    final_tree = file_reverter.revert_file(part_list, system_message, model_response)
+        with open("test.json", "w") as json_file:
+            json.dump(data, json_file)
 
-    with tempfile.NamedTemporaryFile(delete=False) as temp_file:
-        final_tree.write(temp_file, encoding='utf-8', xml_declaration=True)
-        file_reverter.prettify_xml(temp_file)
-        file_reverter.add_docstring(temp_file, raw_file_contents)
+        model_response = "" 
 
-        return send_file(temp_file, as_attachment=True)
+        s = requests.Session()
+        r = s.post("http://localhost:11434/api/generate", data=data, stream=True)
+        for stream_object in r.iter_lines():
+            if stream_object:
+                print(stream_object)
+                response_str = stream_object['response'].decode('utf-8')
+                model_response += response_str
+
+        final_tree = file_reverter.revert_file(part_list, system_message, model_response)
+
+        with tempfile.NamedTemporaryFile() as temp_file:
+            final_tree.write(temp_file, encoding='utf-8', xml_declaration=True)
+            file_reverter.prettify_xml(temp_file)
+            file_reverter.add_docstring(temp_file, original_music_xml_file)
+
+            return send_file(temp_file, as_attachment=True)
 
 if __name__ == '__main__':
     app.run(debug=True)

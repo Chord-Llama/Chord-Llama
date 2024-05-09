@@ -14,13 +14,10 @@ from io import StringIO
 import tempfile
 
 
-def unzip_file(mxl_file) -> str:
-    with tempfile.NamedTemporaryFile(delete=False) as temp_file:
-        with zipfile.ZipFile(mxl_file, "r") as zip_ref:
-            zip_ref.extractall(temp_file)
-            with zip_ref.open(temp_file, 'r') as extracted_file:
-                contents = extracted_file.read()
-    return contents
+def unzip_file(mxl_file, temp_file):
+    with zipfile.ZipFile(mxl_file, "r") as zip_ref:
+        zip_ref.extractall(temp_file)
+    return temp_file
 
 def element_deleter(root: Element, element_name: str) -> None:
   element_to_delete = root.find(element_name)
@@ -363,9 +360,7 @@ def element_cleaner(element: Element, element_dict: dict) -> Element:
         elif child.tag not in element_dict['kept_elements']:
             raise ValueError("Found the element: {} in {}".format(child.tag, element.tag))
         
-def music_xml_cleaner(score_partwise: Element) -> Tuple[Element, Element]:
-
-    part_list = score_partwise.find("part-list")
+def music_xml_cleaner(score_partwise: Element) -> Element:
 
     element_cleaner(score_partwise, score_partwise_dict)
     element_cleaner(score_partwise, score_partwise_dict)
@@ -394,17 +389,19 @@ def music_xml_cleaner(score_partwise: Element) -> Tuple[Element, Element]:
                     element_cleaner(element, harmony_dict)
                 elif element.tag == "attributes":
                     element_cleaner(element, attributes_dict)
-    return part_list, score_partwise
+    return score_partwise
 
-def clean_file(file_name: str) -> ElementTree:
-    file_path = os.path.join('uncompressed_original_files', file_name)
-    tree: ElementTree  = ET.parse(file_path)
+def clean_file(file) -> Tuple[Element, ElementTree]:
+    tree: ElementTree  = ET.parse(file)
     root: Element = tree.getroot()
+    
+    part_list = root.find("part-list")
+
     cleaned_root = music_xml_cleaner(root)
     cleaned_root = music_xml_cleaner(cleaned_root)
     cleaned_root = music_xml_cleaner(cleaned_root)
     cleaned_tree = ET.ElementTree(cleaned_root)
-    return cleaned_tree
+    return part_list, cleaned_tree
 
 def index_elements(tree: ElementTree) -> ElementTree:
     root: Element = tree.getroot()
@@ -420,13 +417,19 @@ def index_elements(tree: ElementTree) -> ElementTree:
     new_tree: ElementTree = ET.ElementTree(root)
     return new_tree
 
-def music_xml_to_inputs(document: str) -> Tuple[Element, str, str]:
+def music_xml_to_inputs(document) -> Tuple[Element, str, str]:
     part_list, document_tree = clean_file(document)
-    document_tree = index_elements(document_tree)
-    document_dict = xmltodict.parse(document_tree)
+
+    root: Element = document_tree.getroot()
+    part: Element = root.find("part")
+    new_tree: ElementTree = ET.ElementTree(part)
+
+    new_tree = index_elements(new_tree)
+    xml_string = ET.tostring(new_tree, encoding="UTF-8")
+    document_dict = xmltodict.parse(xml_string)
 
     instruction_dict = document_dict['part']['measure'][0]['attributes']
-    del part_dict['part']['measure'][0]['attributes']
+    del document_dict['part']['measure'][0]['attributes']
     
     input_dict = document_dict['part']['measure']
 
