@@ -1,21 +1,32 @@
-import React, { ChangeEvent, useState } from 'react';
+import React, { ChangeEvent, useState, useEffect } from 'react';
 
 const FileUpload: React.FC = () => {
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [prompt, setPrompt] = useState<string>('');
+  const [systemFile, setSystemFile] = useState<File | null>(null);
+  const [promptFile, setPromptFile] = useState<File | null>(null);
+  
+  useEffect(() => {
+    document.title = "Chord Llama";
+  }, []);
 
-  const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
+  const handleSystemFileChange = (event: ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files.length > 0) {
       const file = event.target.files[0];
-      setSelectedFile(file);
+      setSystemFile(file);
+    }
+  };
+
+  const handlePromptFileChange = (event: ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files && event.target.files.length > 0) {
+      const file = event.target.files[0];
+      setPromptFile(file);
     }
   };
 
   const handleUpload = () => {
-    if (selectedFile) {
+    if (systemFile && promptFile) {
       const formData = new FormData();
-      formData.append('music_file', selectedFile);
-      // formData.append('prompt', prompt)
+      formData.append('system_file', systemFile);
+      formData.append('prompt_file', promptFile);
       
       // Example fetch request
       fetch('/ollama-request', {
@@ -31,17 +42,17 @@ const FileUpload: React.FC = () => {
     }
   };
 
-  const handlePromptChange = (event: ChangeEvent<HTMLInputElement>) => {
-    setPrompt(event.target.value); // Update prompt state when text box value changes
-  };
-
-  // accept=".xml,.mxl,.musicxml"
-
   return (
     <div>
-      <input type="file" onChange={handleFileChange} />
-      <input type="text" value={prompt} onChange={handlePromptChange} placeholder="Enter prompt" />
-      <button onClick={handleUpload}>Upload</button>
+      <div style={{ marginBottom: '10px', paddingLeft: '10px' }}>
+      <text>Upload attributes file:  </text>
+      <input type="file" onChange={handleSystemFileChange} />
+      </div>
+      <div style={{ marginBottom: '10px', paddingLeft: '10px' }}>
+      <text>Upload measures file: </text>
+      <input type="file" onChange={handlePromptFileChange} />
+      </div>
+      <button onClick={handleUpload} style={{marginLeft: '10px'}}>Upload</button>
     </div>
   );
 };

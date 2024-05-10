@@ -14,7 +14,9 @@ app = Flask(__name__)
 def ollama_request():
     files = request.files
 
-    music_file = files['music_file']
+    system_file = files['system_file']
+
+    prompt_file = files['prompt_file']
 
     with tempfile.NamedTemporaryFile(mode='w+t', delete=False) as original_music_xml_file:
 
@@ -26,20 +28,19 @@ def ollama_request():
 
         # part_list, system_message, prompt = file_cleaner.music_xml_to_inputs(original_music_xml_file)
 
-        with open('system.yaml', 'r') as file:
-            system_message = file.read()
+        system_message = system_file.read().decode("utf-8")
 
-        with open('prompt.yaml', 'r') as file:
-            prompt = file.read()
+        prompt = prompt_file.read().decode("utf-8")
+
+        # print(system_message)
+
+        # print(prompt)
 
         data = json.dumps({
-            "model": "chord-full:latest",
+            "model": "jaspann/llama-3-chord-llama:latest",
             "system": system_message,
             "prompt": prompt
         })
-
-        with open("test.json", "w") as json_file:
-            json.dump(data, json_file)
 
         model_response = "" 
 
@@ -54,7 +55,7 @@ def ollama_request():
 
                 print(response_json)
 
-                if index > 1000:
+                if index > 50:
                     break
 
         print(model_response)
