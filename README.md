@@ -4,11 +4,11 @@ This is the application to run the Chord Llama Model. From a MusicXML file, it t
 
 ## Model
 This application uses a fine tuned version of Llama 3.
-HuggingFace model: https://huggingface.co/datasets/Chord-Llama/chord_llama_data_mini_train
-Ollama Model: https://ollama.com/jaspann/llama-3-chord-llama
-Dataset: https://huggingface.co/datasets/Chord-Llama/chord_llama_data_mini_train/tree/main
-Dataset Script: https://huggingface.co/datasets/Chord-Llama/chord_llama_dataset/blob/main/music_xml_converter.ipynb
-Training / Testing Script: https://huggingface.co/Chord-Llama/Llama-3-chord-llama-fullModel/blob/main/Selection_Training.ipynb
+- HuggingFace model: https://huggingface.co/datasets/Chord-Llama/chord_llama_data_mini_train
+- Ollama Model: https://ollama.com/jaspann/llama-3-chord-llama
+- Dataset: https://huggingface.co/datasets/Chord-Llama/chord_llama_data_mini_train/tree/main
+- Dataset Script: https://huggingface.co/datasets/Chord-Llama/chord_llama_dataset/blob/main/music_xml_converter.ipynb
+- Training / Testing Script: https://huggingface.co/Chord-Llama/Llama-3-chord-llama-fullModel/blob/main/Selection_Training.ipynb
 
 ## Installation
 We could not get Docker working with the project, so installation needs to be done manually for now.
